@@ -1,0 +1,397 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Song Warrior</title>
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: 'Metal Mania', cursive;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    @keyframes shake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  50% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+  
+  .shake {
+  animation: shake 0.5s ease-in-out infinite;
+  
+}
+
+
+    #logo-placeholder {
+      margin: 1rem auto;
+    }
+
+    #logo-placeholder img {
+      max-width: 350px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    #instruction-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid #fff;
+      border-radius: 10px;
+      margin: 1rem auto;
+      padding: 1rem;
+      width: 90%;
+      max-width: 400px;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #instruction-text {
+      font-size: 1.5rem;
+    }
+
+    #guitar-animation {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .spin {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    #prompt-text {
+      font-size: 1.8rem;
+      font-weight: bold;
+      display: none;
+    }
+
+    #button-container {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      margin: 1.5rem auto;
+    }
+
+    button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      filter: drop-shadow(0 0 100px gold) drop-shadow(0 0 8px #0ff);
+    }
+
+button:hover svg {
+  stroke: orange;
+  transform: scale(1.1);
+  transition: transform 0.2s ease, stroke 0.2s ease;
+}
+
+    svg {
+      stroke: yellow;
+      stroke-width: 2.5;
+      fill: none;
+      width: 50px;
+      height: 50px;
+    }
+
+    #sound-icon.muted {
+      stroke: #888;
+      filter: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="song-warrior">
+    <div id="logo-placeholder">
+   
+    <img id="logo" src="assets/logo.png" alt="Song Warrior Logo">    
+      
+    </div>
+
+    <div id="instruction-box">
+      <div id="instruction-text"><strong><b>How to play:</b></strong><br>+Gather friends. <br> +Tap here for a prompt. <br>+Think of a song based on that prompt.<br>+Add that song to a playlist or jukebox. <br> +Jam out to the music. <br> +Vote for who picked the best song. </div>
+      <img id="guitar-animation" src="assets/guitar.png" alt="Guitar Animation">
+      <div id="prompt-text"></div>
+    </div>
+
+    <div id="button-container">
+      <button id="home-button" title="Home" aria-label="Go Home">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 10 L12 2 L21 10 V21 H3 Z" />
+        </svg>
+      </button>
+      <button id="sound-toggle" title="Toggle Sound" aria-label="Toggle Sound">
+        <svg id="sound-icon" viewBox="0 0 24 24">
+          <polygon points="3 9 9 9 13 5 13 19 9 15 3 15" />
+          <polyline points="16 8 20 4 20 20 16 16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <audio src="assets/song.M4A" id="music" loop></audio>
+
+  <script>
+   const instructionBox = document.getElementById('instruction-box');
+const instructionText = document.getElementById('instruction-text');
+const guitar = document.getElementById('guitar-animation');
+const promptText = document.getElementById('prompt-text');
+const soundToggle = document.getElementById('sound-toggle');
+const soundIcon = document.getElementById('sound-icon');
+const music = document.getElementById('music');
+const homeButton = document.getElementById('home-button');
+
+
+    const prompts = [
+       "What is the best song about falling in love?",
+  "What song would you play after a break up?",
+  "What is a song you play when going through a hard time with a partner?",
+  "What is a song about an unhealthy relationship",
+  "What song would you put on when you're struggling to pay the bills?",
+  "What song do you play when you're feeling lonely?",
+  "What song do you play when you're excited about something new",
+  "What song would you play on an acid trip?",
+  "You're dying. What is the last song you want to listen to?",
+  "Choose a song you would sing to a newborn baby",
+  "What is the best graduation song?",
+  "What song reminds you of leaving home for the first time?",
+  "What song brings up bittersweet memories of someone you lost?",
+  "What song would you sing to a pet to tell them you love them?",
+  "What is the best song for a funeral?",
+  "What song would you play when hanging out with a new friend?",
+  "What is the best campfire singalong?",
+  "What is the best song for a lazy day at home?",
+  "What song do you play after a long day at work?",
+  "What song reminds you of a bad first date?",
+  "What is the best song for running or working out?",
+  "What song would you put on when you're very sleepy?",
+  "What is the best dance party song?",
+  "What song do you sing when you're very drunk?",
+  "What song do you put on during a shopping spree?",
+  "What song reminds you of traveling to a new place?",
+  "What song would you put on after quitting a shitty job?",
+  "What song do you put on after winning big at the casino?",
+  "What song do you play when feeling sick?",
+  "What is the best song for a seduction?",
+  "What is the best song for staging a coup?",
+  "What song do you play when you're angry?",
+  "Pick a song you can play on repeat while partying all night?",
+  "What song motivates you to clean the house?",
+  "What song can you picture someone playing while coked up and smashing things?",
+  "What song do you play after a good first date?",
+  "What is the best song about jealousy?",
+  "What song do you play while coming home after a long time away?",
+  "What's the best song to play at the beach?",
+  "What song will be in your head while going under anesthesia?",
+  "What song brings back nostalgic memories?",
+  "What song do you blast as a metero is about to destroy Earth?",
+  "What is the best song for strolling around an art museum?",
+  "What song do you play in the background while reading a good book?",
+ "What song do you jam out to while bathing in the blood of your enemies?",
+ "What song do you sing along to with the gods in Valhalla?",
+  "What is the closing credits song for a biopic about your life?",
+  "What is the best soundtrack song for a final boss fight?",
+  "Two strangers meet in a Hollywood rom-com. What song should be playing on the soundtrack?",
+  "What song would be in your head if vampires were chasing you?",
+  "What song would you play while carrying out a brilliant casino heist?",
+  "Pick a good soundtrack song for a city slicker traveling to a quaint country town?",
+  "What song do you play when you're feeling guilty?",
+  "You're strutting down the street feeling cool and confident. What song are you listening to?",
+  "Your crush told you they see you more as a friend. What song do you put on?",
+  "You have just freed yourself from a toxic relationship. Put on a song!",
+  "Imagine you just fell in love with someone because you like the same song. What song is it?",
+  "Your child is all grown up and heading off to college. What song do you play?",
+  "Your spaceship is about to take off to Mars in 30 seconds. Put on a song.",
+  "You just won a million dollar jackpot. Put on a song!",
+  "Play a song for when you're sailing off into the sunset.",
+  "What song do you put on the car radio while competing in a NASCAR race?",
+  "What song is in your head after hearing bad news from a doctor?",
+  "What song explains your philosophy of life?",
+  "What song should play on the movie soundtrack when the main character makes contact with alien life?",
+  "What song is playing in your head when you're in a sword fight with a Viking warrior?",
+  "What song plays as the mysterious, attractive stranger at the end of the bar walks towards you in slow motion?",
+  "You're feeling patriotic on the Fourth of July. Put on a song.",
+  "It's Halloween and you're feeling spooky. Put on a song.",
+  "What is the best song for a winter's night?",
+  "What is the worst holiday song?",
+  "What song would play in your head if you found your partner in bed with your best friend?",
+  "You're feeling sad. Put on a song to cheer up!",
+  "Your crush takes you by the hand and leads you towards the bedroom. Put on a song.",
+  "What song pumps you up and motivates you to create the work presentation you've been putting off?",
+  "You're slowly walking away from an explosion while putting sunglasses on. What song is playing?",
+  "What is the best wedding first dance song?",
+  "What is the best wedding parent/child dance song?",
+  "The opposing army is closing in on the main character's position. What's on the soundtrack?",
+  "What is on the soundtrack when the main character just learned Santa isn't real?",
+  "What is the best song for a fun night on the town with your besties?",
+  "What song is playing when you're soaring through a fantasy world on a dragon?",
+  "What song do you put on when you have to pee on the road trip, and the rest stop is an hour away?",
+  "The main character is crawling through the desert dying of thirst. What's on the soundtrack?",
+  "Doctor Frankenstein has brought a creature to life. What's on the soundtrack?",
+  "What song would you choose for your skydiving video?",
+  "What's the best sountrack song for a montage of a child growing into an adult?",
+  "What song is playing in your head while bringing your dog to the vet for the last time?",
+  "What is the best song for autumn?",
+  "The main character's time machine arrives in the year 2150. What's on the soundtrack?",
+  "What song should play in a commercial where someone is really enjoying a candy bar?",
+  "What song brings back memories of someone you lost?",
+  "What is a song on your retirement party playlist?",
+  "What song should play when Romeo and Juliet kill themselves?",
+  "What is the best song for a picnic in the park?",
+  "Waht song do you play when you found out the person you thought was 'the one' was just using you?",
+  "The main character is the lone survivor of an extinction level event. What's on the soundtrack?",
+  "What is the official song for your presidential campaign?",
+  "What song do you put on as your plane is taking off for a distant land?",
+  "What song makes you laugh and cry at the same time?",
+  "What song best expresses teen angst?",
+  "What is the best prom song?",
+  "What is a song you once hated, but grew to love?",
+  "What's a song you once loved, but grew to hate?",
+  "What is the best karaoke song?",
+  "What is the worst karaoke song?",
+  "What is the best song for cuddling by the fireplace?",
+  "What is the best protest song?",
+  "What song plays on the sountrack when the main character ascends to the overmind, attaining higher consciousness?",
+  "What is the best song for a mall flash mob?",
+  "What song do you play while walking on a cold and windy night?",
+  "What song do you sing to your true love as you're dying?",
+  "What song plays as you walk among the battlefield to survey the horror and death?",
+  "What song would make the best ringtone for an evil billionaire?",
+  "What would be the title song of the greatest hits musical of your favorite artist?",
+  "Pick a defiant and empowering 'you against the world' song.",
+  "What cathartic song helps get all the bad thoughts out?",
+  "What is a song you're embarassed to admit you love?",
+  "What is your favorite song in a language you don't speak?",
+  "What song plays as you take a stroll through a dystopian hellscape?",
+  "What song do you play while plotting your revenge?",
+  "What song do you play to the aliens to prove that Earth is worth saving?",
+  "What is the weirdest song you love?",
+  "What is the defining song of your generation?",
+  "What song is playing on repeat in hell?",
+  "You're about to talk to your crush at the end of the bar. But first, put on a song.",
+  "What song plays as the bad guy slowly plummets to his death from Yakitomi plaza?",
+"What is a problematic song you don't want to admit to liking?",
+  "Play a song from a musical artist you had a big crush on growing up?",
+  "What song do you play when overcome with anxiety?",
+  "What song helps you feel seen and understood?",
+  "What song do you put on the radio when you're falling asleep at the wheel?",
+  "What is a good song for a doctor's waiting room?",
+  "What song would you ask your Uber driver to put on?",
+  "What song do you play while strutting down the fashion runway in Milan?",
+  "What song plays when you return to your love after being lost at sea?",
+  "What is a good song for when you're left at the altar?",
+  "What is a good song for a friend breakup?",
+  "What song plays when you find yourself naked in the sauna with your arch enemy?",
+  "What's a good song to 'Thelma and Louise' to with your best friend?",
+  "What is a terrible song to play when proposing to someone?",
+ "What is a great song to play when proposing to someone?",
+  "What song is playing at the party when you realize all your exes are there?",
+  "What song plays on the soundtrack after the protagonist accidentally sexted their best friend's sibling?",
+  "What is the best song to play over the stadium louspeakers when you're walking up to your turn at bat?",
+  "What is the national anthem for the nation you just founded?",
+  "What song plays when you're in line next to your ex at the DMV?",
+  "What song reminds people of you?",
+  "What song do you send in a text to say, 'fuck you' to your ex?",
+  "What is the best song from a TV or movie soundtrack?",
+  "What is the best song for the final hole in a competetive mini-golf match?",
+  "What is a terrible song with amazing lyrics?"
+
+    ];
+
+    function getRandomPrompt() {
+  return prompts[Math.floor(Math.random() * prompts.length)];
+}
+
+// Add fade-in animation for prompt text
+function fadeIn(element, duration = 600) {
+  element.style.opacity = 0;
+  element.style.display = 'block';
+  let start = null;
+
+  function animate(timestamp) {
+    if (!start) start = timestamp;
+    let progress = timestamp - start;
+    let opacity = Math.min(progress / duration, 1);
+    element.style.opacity = opacity;
+    if (progress < duration) {
+      requestAnimationFrame(animate);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+instructionBox.addEventListener('click', () => {
+  // Prevent spamming clicks while spinning:
+  
+  const logo = document.getElementById('logo');
+
+
+logo.classList.add('shake');
+setTimeout(() => {
+  logo.classList.remove('shake');
+}, 10000);
+  
+  
+  
+
+  
+  if (guitar.classList.contains('spin')) return;
+
+  instructionText.style.display = 'none';
+  promptText.style.display = 'none';
+  guitar.style.opacity = 1;
+  guitar.classList.add('spin');
+
+  if (music.paused) music.play();
+
+  // Spin duration set to 5 seconds for better UX
+  setTimeout(() => {
+    guitar.classList.remove('spin');
+    guitar.style.opacity = 0;
+    promptText.textContent = getRandomPrompt();
+    fadeIn(promptText, 800);
+  }, 7000);
+});
+
+soundToggle.addEventListener('click', () => {
+  if (music.paused) {
+    music.play();
+    soundIcon.classList.remove('muted');
+  } else {
+    music.pause();
+    soundIcon.classList.add('muted');
+  }
+});
+
+homeButton.addEventListener('click', () => {
+  promptText.textContent = '';
+  promptText.style.display = 'none';
+  instructionText.style.display = 'block';
+  guitar.style.opacity = 0;
+  guitar.classList.remove('spin');
+  music.pause();
+  music.currentTime = 0;
+});
+
+  </script>
+</body>
+</html>
